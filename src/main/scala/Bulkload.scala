@@ -1,5 +1,3 @@
-package utils
-
 import java.io.File
 
 import org.apache.spark.sql.SparkSession
@@ -11,10 +9,9 @@ import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.hbase.mapred.TableOutputFormat
 import org.apache.hadoop.fs.{ Path, FileSystem }
 
-class Bulkloader() extends java.io.Serializable {
+class Bulkload() {
 
-  def loadHbase() {
-
+  def main() {
     val csvFile = new File(s"conf/sample/businessIndex.csv").toURI.toURL.toExternalForm
     val ss = SparkSession.builder().master("local").appName("appName").getOrCreate()
 
