@@ -11,7 +11,7 @@ import org.apache.hadoop.fs.{ Path, FileSystem }
 
 class Bulkload() {
 
-  def main() {
+  def main {
     val csvFile = new File(s"conf/sample/businessIndex.csv").toURI.toURL.toExternalForm
     val ss = SparkSession.builder().master("local").appName("appName").getOrCreate()
 
