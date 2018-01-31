@@ -9,9 +9,8 @@ import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.hbase.mapred.TableOutputFormat
 import org.apache.hadoop.fs.{ Path, FileSystem }
 
-class Bulkload() {
-
-  def main {
+object Bulkload {
+  def main(args: Array[String]) {
     val csvFile = new File(s"conf/sample/businessIndex.csv").toURI.toURL.toExternalForm
     val ss = SparkSession.builder().master("local").appName("appName").getOrCreate()
 

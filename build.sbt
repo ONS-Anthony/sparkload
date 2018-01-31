@@ -35,4 +35,4 @@ assemblyMergeStrategy in assembly := {
     oldStrategy(x)
 }
 
-mainClass in Compile := Some("scala.Bulkload")
+mainClass in Compile := Some("Bulkload")
