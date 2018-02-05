@@ -10,15 +10,13 @@ lazy val Versions = new {
 }
 
 libraryDependencies ++= Seq(
-  "org.apache.hbase"             %  "hbase-hadoop-compat"  % "1.2.1",
-  ("org.apache.hbase"             %  "hbase-server"         % Versions.hbase)
-    .exclude("com.sun.jersey","jersey-server"),
-  "org.apache.hbase"             %  "hbase-common"         % Versions.hbase,
-  "org.apache.hbase"             %  "hbase-client"         % Versions.hbase,
-  ("org.apache.spark"             %% "spark-core"           % Versions.spark)
-    .exclude("aopalliance","aopalliance")
-    .exclude("commons-beanutils","commons-beanutils"),
-  "org.apache.spark"             %% "spark-sql"            % Versions.spark
+  "org.apache.hbase"     %  "hbase-hadoop-compat"  % "1.2.1",
+  ("org.apache.hbase"    %  "hbase-server"         % Versions.hbase).exclude("com.sun.jersey","jersey-server"),
+  "org.apache.hbase"     %  "hbase-common"         % Versions.hbase,
+  "org.apache.hbase"     %  "hbase-client"         % Versions.hbase,
+  ("org.apache.spark"    %% "spark-core"           % Versions.spark).exclude("aopalliance","aopalliance").exclude("commons-beanutils","commons-beanutils"),
+  "org.apache.spark"     %% "spark-sql"            % Versions.spark,
+  "com.streamsets"       % "streamsets-datacollector-spark-api" % "2.2.0.0"
 )
 
 
