@@ -1,18 +1,7 @@
-# bi-data
-An API for getting business data from the HBase REST API
+# sparkload
+An app that bulk loads data into hbase via spark job
 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)]() [![Dependency Status](https://www.versioneye.com/user/projects/596f195e6725bd0027f25e93/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/596f195e6725bd0027f25e93)
-
-## API Endpoints
-
-If you want to specify a particular period, use the format below.
-/test - test create hFile and bulk load into hbase
-
-| method | endpoint                                         | example                               |
-|--------|--------------------------------------------------|---------------------------------------|
-| GET    | /v1/period/:period/id/:id                        | /v1/periods/201706/id/123412341234    |
-| Get    | /test                                            | localhost:{portNumber}/test           |
-
 
 ## Environment Setup
 
@@ -25,11 +14,28 @@ brew install sbt
 
 ## Running
 
-To run the `bi-data`, run the following:
+To run the `sparkload`, run the following:
 
 ``` shell
 start-hbase.sh
-sbt api/run -Dhttp.port={portNumber}
+${sparksubmitdir}/spark-submit \
+    --class Bulkload \
+    target/scala-2.11/spark_loader_2.11-1.0.jar \
+    csv filename \
+    period of data being loaded (YYYYMM) \
+    target hbase tablename \
+    target directory for HFile \
+    name of column in csv file to be used as the rowkey
+
+/usr/local/Cellar/apache-spark/2.1.0/bin/spark-submit
+```
+
+## Package
+
+To package the code without dependencies
+
+``` shell
+sbt package
 ```
 
 ## Assembly
@@ -47,8 +53,6 @@ After running the following command:
 ```shell
 sbt clean compile "project api" universal:packageBin
 ```
-bi
-A .zip file is created here, `/target/universal/bi-data.zip`, which is pushed to CloudFoundry.
 
 ## Testing
 
