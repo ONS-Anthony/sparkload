@@ -11,15 +11,16 @@ import org.apache.hadoop.fs.{ Path, FileSystem }
 
 object Bulkload {
   def main(args: Array[String]) {
-    val csvFile = new File(s"conf/sample/businessIndex.csv").toURI.toURL.toExternalForm
-    val ss = SparkSession.builder().master("local").appName("appName").getOrCreate()
 
-    val path = "conf/sample/hfile"
-    val id = "CompanyNumber"
-
-    val period = "201706"
-    val tableName = "june"
+    val csvFileName = args{0}
+    val period = args{1}
+    val tableName = args{2}
+    val path = args{3}
+    val id = args{4}
     val colFamily = "d"
+
+    val csvFile = new File(csvFileName).toURI.toURL.toExternalForm
+    val ss = SparkSession.builder().master("local").appName("appName").getOrCreate()
 
     val df = ss.read
       .option("header", true)
