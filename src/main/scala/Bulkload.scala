@@ -15,7 +15,7 @@ object Bulkload {
     val ss = SparkSession.builder().master("local").appName("appName").getOrCreate()
 
     val path = "conf/sample/hfile"
-    val id = "companyname"
+    val id = "CompanyNumber"
 
     val period = "201706"
     val tableName = "june"
@@ -23,13 +23,15 @@ object Bulkload {
 
     val df = ss.read
       .option("header", true)
+      .option("ignoreLeadingWhiteSpace", true)
+      .option("escape","\"")
       .csv(csvFile)
       .sort(id)
 
     val sortedCol = df.columns.sorted
 
     val pairs = df.rdd.flatMap(line => {
-      val rowKey = s"${line.getAs(id)}~$period"
+      val rowKey = s"$period~${line.getAs(id)}"
       for (i <- sortedCol) yield {
         val value = if (line.getAs[String](i) == null) "" else line.getAs[String](i)
         (new ImmutableBytesWritable(rowKey.getBytes()), new KeyValue(rowKey.getBytes(), colFamily.getBytes(), i.getBytes(), value.getBytes()))
