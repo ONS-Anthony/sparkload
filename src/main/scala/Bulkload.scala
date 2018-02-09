@@ -1,13 +1,12 @@
-import java.io.File
-
 import org.apache.spark.sql.SparkSession
-import org.apache.hadoop.hbase.{ HBaseConfiguration, KeyValue }
-import org.apache.hadoop.hbase.client.HTable
+import org.apache.hadoop.hbase.{HBaseConfiguration, KeyValue}
+import org.apache.hadoop.hbase.TableName
+import org.apache.hadoop.hbase.client.ConnectionFactory
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable
-import org.apache.hadoop.hbase.mapreduce.{ HFileOutputFormat2, LoadIncrementalHFiles }
+import org.apache.hadoop.hbase.mapreduce.{HFileOutputFormat2, LoadIncrementalHFiles}
 import org.apache.hadoop.mapreduce.Job
 import org.apache.hadoop.hbase.mapred.TableOutputFormat
-import org.apache.hadoop.fs.{ Path, FileSystem }
+import org.apache.hadoop.fs.{FileSystem, Path}
 
 object Bulkload {
   def main(args: Array[String]) {
@@ -19,14 +18,13 @@ object Bulkload {
     val id = args{4}
     val colFamily = "d"
 
-    val csvFile = new File(csvFileName).toURI.toURL.toExternalForm
     val ss = SparkSession.builder().master("local").appName("appName").getOrCreate()
 
     val df = ss.read
       .option("header", true)
       .option("ignoreLeadingWhiteSpace", true)
       .option("escape","\"")
-      .csv(csvFile)
+      .csv(csvFileName)
       .sort(id)
 
     val sortedCol = df.columns.sorted
@@ -40,18 +38,20 @@ object Bulkload {
     })
 
     val conf = HBaseConfiguration.create()
-    val table = new HTable(conf, tableName)
     conf.set(TableOutputFormat.OUTPUT_TABLE, tableName)
     conf.setInt("hbase.mapreduce.bulkload.max.hfiles.perRegion.perFamily", 500)
+
+    val connection = ConnectionFactory.createConnection(conf)
+    val table = connection.getTable(TableName.valueOf(tableName))
+    val fs = FileSystem.get(conf)
+
     val job = Job.getInstance(conf)
     job.setMapOutputKeyClass(classOf[ImmutableBytesWritable])
     job.setMapOutputValueClass(classOf[KeyValue])
     HFileOutputFormat2.configureIncrementalLoadMap(job, table)
-    val fs = FileSystem.get(conf)
 
     pairs.saveAsNewAPIHadoopFile(path, classOf[ImmutableBytesWritable], classOf[KeyValue], classOf[HFileOutputFormat2])
-    val bulkLoader = new LoadIncrementalHFiles(conf)
-    bulkLoader.doBulkLoad(new Path(path), table)
+    new LoadIncrementalHFiles(conf).doBulkLoad(new Path(path),connection.getAdmin, table,connection.getRegionLocator(TableName.valueOf(tableName)))
     fs.delete(new Path(path))
     ss.stop()
   }
